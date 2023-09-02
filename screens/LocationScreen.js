@@ -1,10 +1,20 @@
 import { useState } from "react";
-import { StyleSheet, Text, Button, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from "expo-location";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LocationScreen() {
   const [location, setLocation] = useState(null);
+
+  const storeLocation = async (value) => {
+    try {
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem("location", jsonValue);
+    } catch (e) {
+      console.log("Problem storing location: ", e);
+    }
+  };
 
   const getLocation = async () => {
     try {
@@ -14,7 +24,8 @@ export default function LocationScreen() {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      setLocation(location.coords);
+      setLocation(location);
+      storeLocation(location);
     } catch (error) {
       console.error(error);
     }
@@ -25,17 +36,17 @@ export default function LocationScreen() {
       <TouchableOpacity
         onPress={getLocation}
         style={styles.button}
-        activeOpacity={0.7} // Add feedback when pressed
+        activeOpacity={0.7}
       >
-        <Text style={styles.buttonText}>Get Location</Text>
+        <Text style={styles.buttonText}>Get GPS Location</Text>
       </TouchableOpacity>
       {location && (
         <View style={styles.coordView}>
           <Text style={styles.coords}>
-            Latitude: {location.latitude.toFixed(6)}
+            Latitude: {location.coords.latitude.toFixed(6)}
           </Text>
           <Text style={styles.coords}>
-            Longitude: {location.longitude.toFixed(6)}
+            Longitude: {location.coords.longitude.toFixed(6)}
           </Text>
         </View>
       )}
@@ -55,7 +66,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 35,
     borderRadius: 7,
-    marginBottom: 30, 
+    marginBottom: 30,
   },
   buttonText: {
     color: "#FFFFFF",

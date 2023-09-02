@@ -3,7 +3,7 @@ import { View, Text, Switch, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Picker } from "@react-native-picker/picker";
 
-const SettingsScreen = () => {
+export default function SettingsScreen() {
   const [selectedTheme, setSelectedTheme] = useState("system");
   const [accentColor, setAccentColor] = useState("#3498db");
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -93,5 +93,3 @@ const styles = {
     textAlign: "center",
   },
 };
-
-export default SettingsScreen;
