@@ -1,44 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Switch, TouchableOpacity, ScrollView } from "react-native"; // Replace Button with TouchableOpacity
+import { useState } from "react";
+import { View, Text, Switch, TouchableOpacity, ScrollView } from "react-native"; 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Picker } from "@react-native-picker/picker";
-import { SharedPreferences } from "react-native";
 
 const SettingsScreen = () => {
   const [selectedTheme, setSelectedTheme] = useState("system");
   const [accentColor, setAccentColor] = useState("#3498db");
   const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
-    try {
-      const sharedPreferences = await SharedPreferences.getItem("appSettings");
-      if (sharedPreferences) {
-        const settings = JSON.parse(sharedPreferences);
-        setSelectedTheme(settings.theme);
-        setAccentColor(settings.accentColor);
-        setIsDarkMode(settings.isDarkMode);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const saveSettings = async () => {
-    try {
-      const settings = {
-        theme: selectedTheme,
-        accentColor,
-        isDarkMode,
-      };
-      await SharedPreferences.setItem("appSettings", JSON.stringify(settings));
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -66,7 +34,6 @@ const SettingsScreen = () => {
             <Picker.Item label='Blue' value='#3498db' />
             <Picker.Item label='Red' value='#e74c3c' />
             <Picker.Item label='Green' value='#2ecc71' />
-            {/* Add more color options */}
           </Picker>
         </View>
 
@@ -80,7 +47,6 @@ const SettingsScreen = () => {
       </ScrollView>
 
       <TouchableOpacity
-        onPress={saveSettings}
         style={[styles.button, { backgroundColor: accentColor }]}
         activeOpacity={0.7}
       >
