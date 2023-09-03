@@ -6,9 +6,6 @@ import { StatusBar } from "expo-status-bar";
 import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import LocationScreen from "./screens/LocationScreen";
-import * as SQLite from "expo-sqlite";
-
-const db = SQLite.openDatabase("appSettings.db");
 
 const Tab = createMaterialBottomTabNavigator();
 
