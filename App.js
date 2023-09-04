@@ -1,59 +1,64 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { NavigationContainer } from "@react-navigation/native";
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { createMaterialBottomTabNavigator } from "react-native-paper/react-navigation";
+import {
+  MD3DarkTheme as DefaultTheme,
+  PaperProvider,
+} from "react-native-paper";
+
+// Screens
 import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import LocationScreen from "./screens/LocationScreen";
 
 const Tab = createMaterialBottomTabNavigator();
 
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: "tomato",
+    secondary: "yellow",
+  },
+};
+
 export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Tab.Navigator
-          initialRouteName='Home'
-          activeColor='#aff9c9'
-          inactiveColor='#67e0a3'
-          barStyle={{ backgroundColor: "#317b22" }}
-        >
-          <Tab.Screen
-            name='Home'
-            component={HomeScreen}
-            options={{
-              tabBarLabel: "Home",
-              tabBarIcon: ({ color }) => (
-                <MaterialCommunityIcons name='home' color={color} size={26} />
-              ),
-            }}
-          />
-          <Tab.Screen
-            name='Location'
-            component={LocationScreen}
-            options={{
-              tabBarLabel: "Location",
-              tabBarIcon: ({ color }) => (
-                <MaterialCommunityIcons
-                  name='crosshairs-gps'
-                  color={color}
-                  size={26}
-                />
-              ),
-            }}
-          />
-          <Tab.Screen
-            name='Settings'
-            component={SettingsScreen}
-            options={{
-              tabBarLabel: "Settings",
-              tabBarIcon: ({ color }) => (
-                <MaterialCommunityIcons name='cog' color={color} size={26} />
-              ),
-            }}
-          />
-        </Tab.Navigator>
+        <PaperProvider theme={theme}>
+          <Tab.Navigator initialRouteName='Home'>
+            <Tab.Screen
+              name='Home'
+              component={HomeScreen}
+              options={{
+                tabBarIcon: ({ color }) => (
+                  <MaterialCommunityIcons name='home' color={color} size={26} />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name='Location'
+              component={LocationScreen}
+              options={{
+                tabBarIcon: ({ color }) => (
+                  <MaterialCommunityIcons name='crosshairs-gps' color={color} size={26} />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name='Settings'
+              component={SettingsScreen}
+              options={{
+                tabBarIcon: ({ color }) => (
+                  <MaterialCommunityIcons name='cog' color={color} size={26} />
+                ),
+              }}
+            />
+          </Tab.Navigator>
+        </PaperProvider>
       </NavigationContainer>
       <StatusBar style='light' />
     </SafeAreaProvider>

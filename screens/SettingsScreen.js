@@ -18,9 +18,10 @@ export default function SettingsScreen() {
             onValueChange={(itemValue) => setSelectedTheme(itemValue)}
             style={styles.picker}
           >
+            <Picker.Item label='System' value='system' />
             <Picker.Item label='Light' value='light' />
             <Picker.Item label='Dark' value='dark' />
-            <Picker.Item label='System' value='system' />
+            <Picker.Item label='Black' value='black' />
           </Picker>
         </View>
 
