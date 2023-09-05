@@ -4,8 +4,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { createMaterialBottomTabNavigator } from "react-native-paper/react-navigation";
 import {
-  MD3DarkTheme as DefaultTheme,
-  PaperProvider,
+  // MD3DarkTheme as DefaultDarkTheme,
+  MD3LightTheme as DefaultLightTheme,
+  MD3DarkTheme as DefaultDarkTheme,
+  PaperProvider
 } from "react-native-paper";
 
 // Screens
@@ -15,20 +17,11 @@ import LocationScreen from "./screens/LocationScreen";
 
 const Tab = createMaterialBottomTabNavigator();
 
-const theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: "tomato",
-    secondary: "yellow",
-  },
-};
-
 export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <PaperProvider theme={theme}>
+        <PaperProvider theme={DefaultDarkTheme}>
           <Tab.Navigator initialRouteName='Home'>
             <Tab.Screen
               name='Home'

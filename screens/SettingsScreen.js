@@ -1,54 +1,53 @@
 import { useState } from "react";
 import { View, Text, Switch, TouchableOpacity, ScrollView } from "react-native"; 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Picker } from "@react-native-picker/picker";
+import {
+  MD3DarkTheme as DefaultDarkTheme,
+  MD3LightTheme as DefaultLightTheme,
+} from "react-native-paper";
 
 export default function SettingsScreen() {
-  const [selectedTheme, setSelectedTheme] = useState("system");
-  const [accentColor, setAccentColor] = useState("#3498db");
+  const [selectedTheme, setSelectedTheme] = useState("light");
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const lightTheme = {
+    ...DefaultLightTheme,
+    colors: {
+      ...DefaultLightTheme.colors,
+      // primary: "tomato",
+      // secondary: "yellow",
+    },
+  };
+
+  const darkTheme = {
+    ...DefaultDarkTheme,
+    colors: {
+      ...DefaultDarkTheme.colors,
+      // primary: "tomato",
+      // secondary: "yellow",
+    },
+  };
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    setSelectedTheme(isDarkMode ? "light" : "dark");
+  };
+
+  const theme = isDarkMode ? DefaultDarkTheme : DefaultLightTheme;
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.settingsContainer}>
         <View style={styles.settingItem}>
           <Text style={styles.settingLabel}>Theme Mode:</Text>
-          <Picker
-            selectedValue={selectedTheme}
-            onValueChange={(itemValue) => setSelectedTheme(itemValue)}
-            style={styles.picker}
-          >
-            <Picker.Item label='System' value='system' />
-            <Picker.Item label='Light' value='light' />
-            <Picker.Item label='Dark' value='dark' />
-            <Picker.Item label='Black' value='black' />
-          </Picker>
-        </View>
-
-        <View style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Accent Color:</Text>
-          <Picker
-            selectedValue={accentColor}
-            onValueChange={(itemValue) => setAccentColor(itemValue)}
-            style={styles.picker}
-          >
-            <Picker.Item label='Blue' value='#3498db' />
-            <Picker.Item label='Red' value='#e74c3c' />
-            <Picker.Item label='Green' value='#2ecc71' />
-          </Picker>
-        </View>
-
-        <View style={styles.settingItem}>
-          <Text style={styles.settingLabel}>Dark Mode:</Text>
           <Switch
             value={isDarkMode}
-            onValueChange={(value) => setIsDarkMode(value)}
+            onValueChange={toggleDarkMode}
           />
         </View>
       </ScrollView>
-
       <TouchableOpacity
-        style={[styles.button, { backgroundColor: accentColor }]}
+        style={[styles.button, { backgroundColor: theme.colors.primary }]}
         activeOpacity={0.7}
       >
         <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
@@ -62,7 +61,6 @@ export default function SettingsScreen() {
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: "#232323",
   },
   settingsContainer: {
     padding: 20,
@@ -74,7 +72,7 @@ const styles = {
     marginBottom: 20,
   },
   settingLabel: {
-    color: "#FFFFFF",
+    // color: "#FFFFFF",
     fontSize: 20,
   },
   picker: {

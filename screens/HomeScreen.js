@@ -1,104 +1,117 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useState, useEffect } from "react";
+import { StyleSheet, Text, View, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useState, useEffect } from "react";
 import axios from "axios";
+import { useTheme } from "react-native-paper";
 
 export default function HomeScreen() {
-  const [location, setLocation] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
+  const theme = useTheme();
 
-  useEffect(() => {
-    const getLocation = async () => {
-      try {
-        const jsonValue = await AsyncStorage.getItem("location");
-        const parsedLocation = jsonValue != null ? JSON.parse(jsonValue) : null;
-        setLocation(parsedLocation);
-      } catch (e) {
-        console.log("Problem getting data from storage: ", e);
-      }
-    };
+  const provinceAbbreviations = {
+    Alberta: "AB",
+    "British Columbia": "BC",
+    Manitoba: "MB",
+    "New Brunswick": "NB",
+    "Newfoundland and Labrador": "NL",
+    "Nova Scotia": "NS",
+    Ontario: "ON",
+    "Prince Edward Island": "PE",
+    Quebec: "QC",
+    Saskatchewan: "SK",
+    "Northwest Territories": "NT",
+    Nunavut: "NU",
+    Yukon: "YT",
+  };
 
-    getLocation();
-  }, []);
-
-  const getWeather = async () => {
-    try {
-      if (location) {
-        let url = `https://api.openweathermap.org/data/2.5/weather?
-                   lat=${location.coords.latitude}&
-                   lon=${location.coords.longitude}&
-                   appid=${process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY}`;
-
-        axios.get(url).then((response) => {
-          this.currentTemp = response.data.main.temp;
-          this.minTemp = response.data.main.temp_min;
-          this.maxTemp = response.data.main.temp_max;
-          this.pressure = response.data.main.pressure;
-          this.humidity = response.data.main.humidity + "%";
-          this.wind = response.data.wind.speed + "m/s";
-          this.overcast = response.data.weather[0].description;
-          this.icon =
-            "images/" + response.data.weather[0].icon.slice(0, 2) + ".svg";
-          this.sunrise = new Date(response.data.sys.sunrise * 1000)
-            .toLocaleTimeString("en-GB")
-            .slice(0, 4);
-          this.sunset = new Date(response.data.sys.sunset * 1000)
-            .toLocaleTimeString("en-GB")
-            .slice(0, 4);
-        });
-      }
-    } catch (e) {
-      console.log("Problem getting openweather api data: ", e);
+  const getProvinceAbbreviation = (fullName) => {
+    if (provinceAbbreviations.hasOwnProperty(fullName)) {
+      return provinceAbbreviations[fullName];
+    } else {
+      return null;
     }
   };
 
+  useEffect(() => {
+    const getWeather = async () => {
+      try {
+        const jsonLocation = await AsyncStorage.getItem("location");
+        const location = jsonLocation ? JSON.parse(jsonLocation) : null;
+
+        if (location) {
+          const { latitude, longitude } = location.coords;
+          const apikey = process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY;
+          const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apikey}&units=metric`;
+          const reverseGeocodeUrl = `http://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${apikey}`;
+
+          const [weatherResponse, reverseGeocodeResponse] = await Promise.all([
+            axios.get(weatherUrl),
+            axios.get(reverseGeocodeUrl),
+          ]);
+
+          const { main, wind, weather, sys } = weatherResponse.data;
+          const cityName = reverseGeocodeResponse.data[0].name;
+          const fullProvince = reverseGeocodeResponse.data[0].state;
+          const provinceCode = getProvinceAbbreviation(fullProvince);
+
+          const descriptionCapitalized = weather[0].description
+            .split(" ")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+
+          setWeatherData({
+            city: cityName,
+            province: provinceCode,
+            temperature: main.temp,
+            humidity: `${main.humidity}%`,
+            windSpeed: `${(wind.speed * 3.6).toFixed()} km/h`,
+            description: descriptionCapitalized,
+            sunrise: new Date(sys.sunrise * 1000)
+              .toLocaleTimeString("en-US"),
+            sunset: new Date(sys.sunset * 1000)
+              .toLocaleTimeString("en-US"),
+            iconUrl: `https://openweathermap.org/img/w/${weather[0].icon}.png`,
+          });
+        }
+      } catch (e) {
+        console.log("Error: ", e);
+      }
+    };
+
+    getWeather();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>Weather</Text>
-      {weatherData && (
-        <View style={styles.weatherContainer}>
-          <Text style={styles.weatherText}>
-            Temperature: {weatherData.main.temp} °C
-          </Text>
-          <Text style={styles.weatherText}>
-            Min Temperature: {weatherData.main.temp_min} °C
-          </Text>
-          <Text style={styles.weatherText}>
-            Max Temperature: {weatherData.main.temp_max} °C
-          </Text>
-          <Text style={styles.weatherText}>
-            Pressure: {weatherData.main.pressure} hPa
-          </Text>
-          <Text style={styles.weatherText}>
-            Humidity: {weatherData.main.humidity}%
-          </Text>
-          <Text style={styles.weatherText}>
-            Wind Speed: {weatherData.wind.speed} m/s
-          </Text>
-          <Text style={styles.weatherText}>
-            Overcast: {weatherData.weather[0].description}
-          </Text>
-          <Text style={styles.weatherText}>
-            Sunrise:{" "}
-            {new Date(weatherData.sys.sunrise * 1000)
-              .toLocaleTimeString("en-GB")
-              .slice(0, 4)}
-          </Text>
-          <Text style={styles.weatherText}>
-            Sunset:{" "}
-            {new Date(weatherData.sys.sunset * 1000)
-              .toLocaleTimeString("en-GB")
-              .slice(0, 4)}
-          </Text>
-          <Image
-            style={styles.weatherIcon}
-            source={{
-              uri: `https://openweathermap.org/img/w/${weatherData.weather[0].icon}.png`,
-            }}
-          />
-        </View>
-      )}
+      <View style={styles.card}>
+        <Text style={[styles.header, {color: theme.colors.primary}]}>
+          {weatherData && `${weatherData.city}, ${weatherData.province}`}
+        </Text>
+        {weatherData && (
+          <View style={styles.weatherContainer}>
+            <Image
+              style={styles.weatherIcon}
+              source={{ uri: weatherData.iconUrl }}
+            />
+            <Text style={[styles.weatherText, {color: theme.colors.primary}]}>
+              {weatherData.temperature.toFixed(1)}°C {weatherData.description}
+            </Text>
+            <Text style={[styles.weatherText, {color: theme.colors.primary}]}>
+              Humidity: {weatherData.humidity}
+            </Text>
+            <Text style={[styles.weatherText, {color: theme.colors.primary}]}>
+              Wind Speed: {weatherData.windSpeed}
+            </Text>
+            <Text style={[styles.weatherText, {color: theme.colors.primary, marginTop: 26}]}>
+              Sunrise: {weatherData.sunrise}
+            </Text>
+            <Text style={[styles.weatherText, {color: theme.colors.primary}]}>
+              Sunset: {weatherData.sunset}
+            </Text>
+          </View>
+        )}
+      </View>
     </SafeAreaView>
   );
 }
@@ -106,25 +119,22 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#232323",
-    alignItems: "center",
+    alignItems: "flex-start",
+    marginLeft: 20,
   },
   header: {
-    color: "#FFFFFF",
-    fontSize: 40,
-    marginTop: 25,
+    fontSize: 35,
+    marginTop: 10,
   },
   weatherContainer: {
-    marginTop: 20,
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   weatherText: {
-    color: "#FFFFFF",
     fontSize: 20,
   },
   weatherIcon: {
     width: 100,
     height: 100,
-    margin: 10,
+    margin: 2,
   },
 });

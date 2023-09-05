@@ -3,9 +3,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTheme } from "react-native-paper";
 
 export default function LocationScreen() {
   const [location, setLocation] = useState(null);
+  const theme = useTheme();
 
   const storeLocation = async (value) => {
     try {
@@ -35,7 +37,10 @@ export default function LocationScreen() {
     <SafeAreaView style={styles.container}>
       <TouchableOpacity
         onPress={getLocation}
-        style={styles.button}
+        style={[
+          styles.button,
+          { backgroundColor: theme.colors.primaryContainer },
+        ]}
         activeOpacity={0.7}
       >
         <Text style={styles.buttonText}>Get GPS Location</Text>
@@ -57,19 +62,16 @@ export default function LocationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#232323",
     alignItems: "center",
     justifyContent: "center",
   },
   button: {
-    backgroundColor: "#3498db",
     paddingVertical: 15,
     paddingHorizontal: 35,
     borderRadius: 7,
     marginBottom: 30,
   },
   buttonText: {
-    color: "#FFFFFF",
     fontSize: 25,
     textAlign: "center",
   },
@@ -77,7 +79,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   coords: {
-    color: "#FFFFFF",
     fontSize: 25,
     marginVertical: 5,
   },
