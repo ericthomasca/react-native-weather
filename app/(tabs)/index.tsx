@@ -24,7 +24,7 @@ export default function HomeScreen() {
       const settingsData: SettingsData = await getSettingsInfo();
       const apiKey = settingsData ? settingsData.apiKey : '05818676a056fbb2f31e071feb9c9ea0';
       const cityName = settingsData ? encodeURIComponent(settingsData.cityName) : 'Corner%20Brook';
-      const apiUrl = `http://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`;
+      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`;
 
       const response = await axios.get<WeatherData>(apiUrl);
       setWeatherData(response.data);
