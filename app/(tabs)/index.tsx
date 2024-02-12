@@ -63,7 +63,7 @@ export default function HomeScreen() {
             {capitalizeFirstLetter(weatherData.weather[0].description)}
           </Text>
           <Image
-            source={{ uri: `http://openweathermap.org/img/w/${weatherData.weather[0].icon}.png` }}
+            source={{ uri: `https://openweathermap.org/img/w/${weatherData.weather[0].icon}.png` }}
             className='w-24 h-24 mb-2'
           />
           <Text className='text-3xl dark:text-slate-200'>
