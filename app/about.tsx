@@ -1,35 +1,58 @@
-import { StatusBar } from 'expo-status-bar';
-import { Platform, StyleSheet } from 'react-native';
-
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import { StatusBar } from "expo-status-bar";
+import { View, Text, Linking } from "react-native";
 
 export default function AboutScreen() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Modal</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/about.tsx" />
+  const handleEmailPress = () => {
+    Linking.openURL("mailto:eric@ericthomas.ca");
+  };
 
-      {/* Use a light status bar on iOS to account for the black space above the modal */}
-      <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
+  const handleGitHubPress = () => {
+    Linking.openURL("https://github.com/ericthomasca");
+  };
+
+  const handleRepoPress = () => {
+    Linking.openURL("https://github.com/ericthomasca/react-native-weather");
+  };
+
+  return (
+    <View className='flex-1 items-center justify-center px-4'>
+      <Text className='text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4'>
+        About the Weather App
+      </Text>
+      <Text className='text-lg text-gray-600 dark:text-gray-400 mb-6'>
+        Created by Eric Thomas
+      </Text>
+      <Text className='text-base text-gray-700 dark:text-gray-300 mb-2'>
+        This weather app was created by{" "}
+        <Text
+          className='text-blue-500 dark:text-blue-400 underline'
+          onPress={handleGitHubPress}
+        >
+          Eric Thomas
+        </Text>
+        , a passionate developer.
+      </Text>
+      <Text className='text-base text-gray-700 dark:text-gray-300 mb-2'>
+        You can find the source code on{" "}
+        <Text
+          className='text-blue-500 dark:text-blue-400 underline'
+          onPress={handleRepoPress}
+        >
+          GitHub
+        </Text>
+        .
+      </Text>
+      <Text className='text-base text-gray-700 dark:text-gray-300 mb-4'>
+        For any inquiries or issues, feel free to reach out to Eric via email at{" "}
+        <Text
+          className='text-blue-500 dark:text-blue-400 italic underline'
+          onPress={handleEmailPress}
+        >
+          eric@ericthomas.ca
+        </Text>
+        .
+      </Text>
+      <StatusBar style='auto' />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
