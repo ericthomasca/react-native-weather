@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Weather",
-    "slug": "Weather",
+    "slug": "react-native-weather",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -34,6 +34,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "f9b38b21-1c84-4e2d-8a7a-f5d1193f2b82"
+      }
+    },
+    "owner": "ericthomasca"
   }
 }
