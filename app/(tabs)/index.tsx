@@ -1,86 +1,68 @@
-import React, { useEffect, useState } from "react";
-import { Text, View, Image } from "react-native";
-import * as FileSystem from "expo-file-system";
-import axios from "axios";
-
-interface WeatherData {
-  name: string;
-  sys: { country: string };
-  weather: [{ description: string; icon: string }];
-  main: { temp: number; feels_like: number; humidity: number };
-  wind: { speed: number };
-}
-
-interface SettingsData {
-  apiKey: string;
-  cityName: string;
-}
+import { useEffect, useState } from "react";
+import { Text, View, Image, useWindowDimensions } from "react-native";
+import * as Location from "expo-location";
+import { WeatherData } from "@/types";
+import { fetchWeather } from "@/lib/weatherApi";
 
 export default function HomeScreen() {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
 
-  const fetchWeather = async () => {
-    try {
-      const settingsData: SettingsData = await getSettingsInfo();
-      const apiKey = settingsData ? settingsData.apiKey : '05818676a056fbb2f31e071feb9c9ea0';
-      const cityName = settingsData ? encodeURIComponent(settingsData.cityName) : 'Corner%20Brook';
-      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}`;
-
-      const response = await axios.get<WeatherData>(apiUrl);
-      setWeatherData(response.data);
-    } catch (error) {
-      console.error("Error fetching weather:", error);
-    }
-  };
-
-  const getSettingsInfo = async () => {
-    try {
-      const uri = FileSystem.documentDirectory + "settings.json";
-      const fileContent = await FileSystem.readAsStringAsync(uri);
-      return JSON.parse(fileContent);
-    } catch (error) {
-      console.error("Error getting settings info:", error);
-      return null; // Return null if settings file doesn't exist or couldn't be read
-    }
-  };
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+  const cardHeight = windowHeight / 5;
 
   const capitalizeFirstLetter = (string: string): string => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
+  const getLocation = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      console.error("Permission to access location was denied");
+      return;
+    }
+
+    const location = await Location.getCurrentPositionAsync({});
+    const { latitude, longitude } = location.coords;
+    fetchWeather(latitude, longitude);
+  };
+
   useEffect(() => {
-    fetchWeather();
+    getLocation();
   }, []);
 
   return (
-    <View className='flex-1 items-center justify-center'>
+    <View className='flex-1 items-center justify-start bg-black pt-10'>
       {weatherData ? (
-        <View className='items-center justify-center'>
-          <Text className='text-xl font-bold mb-2 dark:text-slate-200'>
+        <View className='w-full bg-white rounded-lg p-6 mb-4'>
+          <Text className='text-xl font-bold mb-2 text-slate-200 dark:text-slate-800'>
             {weatherData.name}, {weatherData.sys.country}
           </Text>
-          <Text className='text-lg mb-2 dark:text-slate-200'>
+          <Text className='text-lg mb-2 text-slate-200 dark:text-slate-800'>
             {capitalizeFirstLetter(weatherData.weather[0].description)}
           </Text>
           <Image
-            source={{ uri: `https://openweathermap.org/img/w/${weatherData.weather[0].icon}.png` }}
+            source={{
+              uri: `https://openweathermap.org/img/w/${weatherData.weather[0].icon}.png`,
+            }}
             className='w-24 h-24 mb-2'
           />
-          <Text className='text-3xl dark:text-slate-200'>
+          <Text className='text-3xl text-slate-200 dark:text-slate-800'>
             {Math.round(weatherData.main.temp - 273.15)}°C
           </Text>
-          <Text className='text-lg mb-2 dark:text-slate-200'>
+          <Text className='text-lg mb-2 text-slate-200 dark:text-slate-800'>
             Feels like {Math.round(weatherData.main.feels_like - 273.15)}°C
           </Text>
-          <Text className='text-lg mb-2 dark:text-slate-200'>
+          <Text className='text-lg mb-2 text-slate-200 dark:text-slate-800'>
             Humidity: {weatherData.main.humidity}%
           </Text>
-          <Text className='text-lg dark:text-slate-200'>
+          <Text className='text-lg text-slate-200 dark:text-slate-800'>
             Wind Speed: {weatherData.wind.speed} m/s
           </Text>
         </View>
       ) : (
-        <Text className='text-slate-200'>Fetching weather data...</Text>
+        <Text className='text-slate-200 dark:text-slate-800'>
+          Fetching weather data...
+        </Text>
       )}
     </View>
   );
